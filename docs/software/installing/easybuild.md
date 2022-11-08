@@ -39,21 +39,25 @@ built in exactly the same way as it would be in a central installation.
 
 You can check for available EasyBuild installable software on LUMI [in this repocitory](https://klust.github.io/LUMI-EasyBuild-docs/). 
 
+
+
 ### Preliminary step: Set up the location for your EasyBuild installations
-By default our EasyBuild setup will install software in `$HOME/EasyBuild`.
-However, this location can be changed by pointing the environment variable
-`EBU_USER_PREFIX` to the directory where you want to create the software
-installation. In most cases a subdirectory in your `/project/project_<id>`
-directory is the best location to install software as that directory is both
+
+The `EBU_USER_PREFIX` variable is used to point the location for installed software. For example, EasyBuild uses this variable to define the path for software installations, and LUMI software partition modules use it to find the installed software. 
+
+If you have not changed the value of this variable, our EasyBuild setup will install software in `$HOME/EasyBuild`. The location for the software installations can be changed by pointing the `EBU_USER_PREFIX` to the directory where you want to create the software installation instead. In most cases, a subdirectory in your `/project/project_<id>` directory is the best location to install software, as that directory is both
 permanent for the duration of your project and shared with all users in your
-project so that everybody can use the software. It is a very good idea to set
-this environment variable in your `.profile` or `.bashrc` file, e.g.
+project, i.e. this way everybody in your project can use the software. Note that all users in your project who want to use the software should set the `EBU_USER_PREFIX` variable.
+
+Because the EBU_USER_PREFIX variable is used by the LUMI software partition modules e.g. to locate installed software, **it is important to change the EBU_USER_PREFIX value in a clean environment**. This means that even the LUMI module should not be loaded when changing the value of EBU_USER_PREFIX. If you have already loaded some modules during the session, you can get back to a clean environment by executing `module --force purge` command, or at very least `module --force unload LUMI` just before changing the value of EBU_USER_PREFIX. 
+
+It is a good idea to set the EBU_USER_PREFIX environment variable in your `.profile` or `.bashrc` file, e.g.
 
 ```bash
 export EBU_USER_PREFIX=/project/project_<id>/EasyBuild
 ```
 
-where `project_<id>` is your project identification, and the `<id>` is a number with 9 digits. Now `/project/project_<id>/EasyBuild/` will be the path where EasyBuild creates the software installations.
+where `project_<id>` is your project identification, and the `<id>` is a number with 9 digits.
 
 ??? Tip "Tip for users with multiple projects"
     If you participate in multiple projects, you'll have to either have only
@@ -80,7 +84,44 @@ where `project_<id>` is your project identification, and the `<id>` is a number 
     search path, not even if you reload the `LUMI` module, and you may get very
     unexpected results from module load operations.
 
-### 1. Software stack version and partition
+
+If everything has gone right with setting the `EBU_USER_PREFIX` variable, you should later be able to see the software that you have installed yourself, when you have the *selected version of the LUMI software stack* and *partition* loaded, when you do `module avail`. Also your software should then be found with `module spider`. 
+
+### The installation recpies
+
+Let's think of, as an exaple, that we would like to use the software GROMACS on LUMI. We have searched for available GROMACS installation recipes from [this repocitory](https://klust.github.io/LUMI-EasyBuild-docs/) and besides some (at least at a later point useful) detailed information, we see several available *EasyConfig* files (=the installation recipes). The names of the EasyConfig files end with `.eb` and have a name that consists of important information about the recipe.
+
+To have an insight on which of the build recipes to use, one needs to first understand the naming scheme for the EasyBuild recipes on LUMI.
+
+Let's consider one of the build recipes for GROMACS:
+
+```text
+GROMACS-2021.4-cpeGNU-22.06-PLUMED-2.7.4-CPU.eb
+```
+The table below explains the naming scheme:
+
+| part of the name   | explanation
+|--------------------|-------------------------------------------------------------------------------------|
+| `GROMACS`          | the name of the package                                                             | 
+| `2021.4`           | the version of GROMACS, in this case the initial 2021 release                       |
+| `cpeGNU-22.06`     | the so-called _**toolchain**_ used for the build                                    |
+| `cpeGNU`           | uses the `PrgEnv-gnu` programming environment                                       |
+| `cpeCray`          | uses the `PrgEnv-cray` programming environment                                      |
+| `cpeAOCC`          | uses the `PrgEnv-aocc` programming environment                                      |
+| `cpeAMD`           | uses the `PrgEnv-amd` programming environment                                       |
+| `-PLUMED-2.7.4-CPU`| the version suffix                                                                  |
+
+_Version suffixes_ are typically used to distinguish different builds of the same version of the
+package. In this case, it indicates that it is a build of the 2021.4 version
+purely for CPU and also includes PLUMED as we have also builds without PLUMED
+(which is not compatible with every GROMACS version).
+
+Pay especially attention to the _**toolchain**_ of the recipe. The version of the toolchain should match the version of the installed LUMI software stack or the installation will fail. To install the GROMACS recipe in this example, we should use the LUMI software stack version 22.06 `LUMI/22.06`.
+
+
+### Software installation procedure
+
+#### 1. Version of software stack and partition
 
 We support installing software with EasyBuild only in the LUMI software stacks,
 not in CrayEnv. 
@@ -108,13 +149,15 @@ partition, it may not be without problems as not all install scripts that come
 with software support cross-compiling and as tests may fail when compiling for
 a CPU with instructions that the host CPU does not support.
 
-To check what modules are currently loaded, use the command `module list`, and to change to the compute nodes partition, load the partition/C
+You can check with `module list` the currently loaded modules. If you e.g. have currenlty the `partition/L` loaded (uses the software stack for login nodes) but would like the software installation to use e.g. the partition for the regular compute nodes, load the partition/C
 
 ```bash
 $ module load partition/C
 ```
+We are now doing the software installation for `LUMI/22.06` and `partition/C`. After the software installation, the appearing module for the software will be available also later on when these same settings for software stacks are used. 
 
-### 2. EasyBuild environment
+
+#### 2. EasyBuild environment
 
 To get the EasyBuild features available, load the `EasyBuild-user` module:
 
@@ -129,25 +172,18 @@ user repository discussed below in the ["Advanced
 guide"](#advanced-guide-to-easybuild-on-lumi), section ["Building your own
 EasyBuild repository"](#building-your-own-easybuild-repository). 
 
-Now all the EasyBuild eb-commands are available to be used. Try e.g. the following commands: 
+Now all the EasyBuild eb-commands are available to be used. Here are some examples:
 
-To see a list of all eb-commands:
+E.g. to check for all available EasyBuild commands:
 
 ```bash
 $ eb --help
 ```
 
-If you want
-more information about the full configuration of EasyBuild:
+If you want more information about the full configuration of EasyBuild:
 
 ```bash
 $ eb --show-config
-```
-
-To see a basic list of software that is available on LUMI with EasyBuild:
-
-```bash
-$ eb --list-software
 ```
 
 To search for a specific software and all the build recipes available for it:
@@ -156,52 +192,14 @@ To search for a specific software and all the build recipes available for it:
 $ eb --search <some-name>
 ```
 
-where `<some-name>` is a name of a software, e.g. Gromacs. The EasyBuild -build recipes are files that end with '.eb'. The names consist of several components that carry important information about the recipe configuration. 
+where `<some-name>` is a name of a software, e.g. Gromacs. The page about [EasyBuild installable software on LUMI and the build recipes](https://klust.github.io/LUMI-EasyBuild-docs/) should be used as a primary source of information, though.
 
 
 !!! Warning
-    When searching for the build recipes, you get a list of all available ones, also the ones that are not compatible with your current settings of software stacks and programming environment. 
+    When searching for the build recipes, you get a list of all available ones, also the ones that are not compatible with your current software settings. **Note that the version of the toolchain should match the version of the LUMI software stack or the installation will fail.** (In fact, it is notjust the version in the file name that should match but the version of the toolchain that is used in the recipe file.) 
 
 
-The EasyBuild installable software and the build recipes are also documented on [this page](https://klust.github.io/LUMI-EasyBuild-docs/).
-
-
-### 3. Compatibility of a build recipe with the environment settings
-
-To have an insight on what build recipe to use, one needs to first understand the naming scheme for the EasyBuild -build recipes on LUMI. For example, let's consider one of the build recipes for the software GROMACS that we have found e.g. with using the `eb --search gromacs` command:
-
-```text
-GROMACS-2021.4-cpeGNU-22.06-PLUMED-2.7.4-CPU.eb
-```
-The table below opens up the naming scheme:
-
-| part of the name   | explanation
-|--------------------|-------------------------------------------------------------------------------------|
-| `GROMACS`          | the name of the package                                                             | 
-| `2021.4`           | the version of GROMACS, in this case the initial 2021 release                       |
-| `cpeGNU-22.06`     | the so-called *toolchain* used for the build                                        |
-| `cpeGNU`           | uses the `PrgEnv-gnu` programming environment                                       |
-| `cpeCray`          | uses the `PrgEnv-cray` programming environment                                      |
-| `cpeAOCC`          | uses the `PrgEnv-aocc` programming environment                                      |
-| `cpeAMD`           | uses the `PrgEnv-amd` programming environment                                       |
-| `-PLUMED-2.7.4-CPU`| the version suffix                                                                  |
-
-_Version suffixes_ are typically used to distinguish different builds of the same version of the
-package. In this case, it indicates that it is a build of the 2021.4 version
-purely for CPU and also includes PLUMED as we have also builds without PLUMED
-(which is not compatible with every GROMACS version).
-
-**Note that the version of the toolchain should match the version of the LUMI software stack or the installation will fail.** (In fact, it is not
-just the version in the file name that should match but the version of the
-toolchain that is used in the recipe file.) 
-
-Pay attention to pick an EasyBuild -build recipe that either matches you current settings (check with `module list`) or change your settings. For the version of software stack, you can check again the [bullet point 1](#1-software-stack-version-and-partition). About programming environment, read more [here](../../development/compiling/prgenv.md) or just check that the version of the EasyBuild recipe matches your currenlty loaded PrgEnv. You can change the programming environment e.g. from cray to gnu with the command:
-
-```bash
-$ module load PrgEnv-gnu
-```
-
-### 4. Installing software
+#### 3. Installing software
 
 EasyBuild is configured so that it searches in the user repository and two
 repositories on the system. The current directory is not part of the default
@@ -222,23 +220,20 @@ the front of the search path. The `-r .` or `-r` flags should be omitted if you
 want full control and install dependency by dependency before installing the
 package (which may be very useful if building right away fails).
 
-EasyBuild now does the installation to the location that you have [defined](#preliminary-step-set-up-the-location-for-your-easybuild-installations) with the EBU_USER_PREFIX varialbe. With our GROMACS example case, the location of the installed module would be:
 
-`/project/project_<id>/EasyBuild/modules/LUMI/22.06/partition/C/GROMACS`
-
-Take this module into use:
-
-```bash
-$ module use /project/project_<id>/EasyBuild/modules/LUMI/22.06/partition/C/GROMACS
-```
-
-Now if you type `module avail` you should see on the list:
+Now, if evetything has gone right, when you type `module avail` you should see on the software list 
 
 ```text
 GROMACS/2021.4-cpeGNU-22.06-PLUMED-2.7.4-CPU
 ```
 
-In some current cases (at least with some recipes of GROMACS), the name of the actual software is dropped out from the module name, and you might only see e.g. `2021.4-cpeGNU-22.06-PLUMED-2.7.4-CPU` for the module name. Then use the name for the module that you actually see on the list. 
+This software module will, in our example case, appear under the heading *EasyBuild managed user software for software stack LUMI/22.06 on LUMI-C*.
+
+Finally, to load the now available module, type `module load <module name>`, e.g.:
+
+```text
+module load GROMACS/2021.4-cpeGNU-22.06-PLUMED-2.7.4-CPU
+```
 
 Note the relation between the name of the EasyBuild recipe
 and the module name and version of the module. This is only the case though if
@@ -246,11 +241,6 @@ the EasyBuild recipe follows the EasyBuild guidelines for naming. If the
 guidelines are not followed and if EasyBuild needs to install this module as a
 dependency of another package, EasyBuild will fail to locate the build recipe.
 
-Finally, to load the now available module, type `module load <module name>`, e.g.:
-
-```text
-module load GROMACS/2021.4-cpeGNU-22.06-PLUMED-2.7.4-CPU
-```
 
 ## Advanced guide to EasyBuild on LUMI
 
