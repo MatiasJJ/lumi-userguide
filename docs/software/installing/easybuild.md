@@ -37,19 +37,19 @@ built in exactly the same way as it would be in a central installation.
 
 *If you are new to EasyBuild and LUMI, it might be a good idea to first read through this chapter once, and then start software installations.*
 
-You can check for available EasyBuild installable software on LUMI [in this repocitory](https://klust.github.io/LUMI-EasyBuild-docs/). 
+You can check for available EasyBuild installable software on LUMI from the [LUMI Software Library](https://klust.github.io/LUMI-EasyBuild-docs/). 
 
 
 
 ### Preliminary step: Set up the location for your EasyBuild installations
 
-The `EBU_USER_PREFIX` variable is used to point the location for installed software. For example, EasyBuild uses this variable to define the path for software installations, and LUMI software partition modules use it to find the installed software. 
+The `EBU_USER_PREFIX` variable is used to point the location for software installations. For example, EasyBuild uses this variable to define the path for software installations, and the LUMI software stack partition modules use it to find the installed software. 
 
 If you have not changed the value of this variable, our EasyBuild setup will install software in `$HOME/EasyBuild`. The location for the software installations can be changed by pointing the `EBU_USER_PREFIX` to the directory where you want to create the software installation instead. In most cases, a subdirectory in your `/project/project_<id>` directory is the best location to install software, as that directory is both
 permanent for the duration of your project and shared with all users in your
 project, i.e. this way everybody in your project can use the software. Note that all users in your project who want to use the software should set the `EBU_USER_PREFIX` variable.
 
-Because the EBU_USER_PREFIX variable is used by the LUMI software partition modules e.g. to locate installed software, **it is important to change the EBU_USER_PREFIX value in a clean environment**. This means that even the LUMI module should not be loaded when changing the value of EBU_USER_PREFIX. If you have already loaded some modules during the session, you can get back to a clean environment by executing `module --force purge` command, or at very least `module --force unload LUMI` just before changing the value of EBU_USER_PREFIX. 
+Because the EBU_USER_PREFIX variable is used by the LUMI software stack partition modules e.g. to locate installed software, **it is important to change the EBU_USER_PREFIX value in a clean environment**. This means that even the LUMI module should not be loaded when changing the value of EBU_USER_PREFIX. If you have already loaded some modules during the session, you can get back to a clean environment by executing `module --force purge` command, or at very least `module --force unload LUMI` just before changing the value of EBU_USER_PREFIX. 
 
 It is a good idea to set the EBU_USER_PREFIX environment variable in your `.profile` or `.bashrc` file, e.g.
 
@@ -85,11 +85,12 @@ where `project_<id>` is your project identification, and the `<id>` is a number 
     unexpected results from module load operations.
 
 
-If everything has gone right with setting the `EBU_USER_PREFIX` variable, you should later be able to see the software that you have installed yourself, when you have the *selected version of the LUMI software stack* and *partition* loaded, when you do `module avail`. Also your software should then be found with `module spider`. 
+If everything has gone right with setting the `EBU_USER_PREFIX` variable, the software that you have installed should be visible with `module avail`, if you have the same settings of LUMI software stack and partition than when doing the software installation. Also your software should be found with `module spider`. If you can't find the installed software, check the [list of possible reasons](#problem-identification) for this. 
+
 
 ### The installation recpies
 
-Let's think of, as an exaple, that we would like to use the software GROMACS on LUMI. We have searched for available GROMACS installation recipes from [this repocitory](https://klust.github.io/LUMI-EasyBuild-docs/) and besides some (at least at a later point useful) detailed information, we see several available *EasyConfig* files (=the installation recipes). The names of the EasyConfig files end with `.eb` and have a name that consists of important information about the recipe.
+Let's think of, as an exaple, that we would like to use the software GROMACS on LUMI. We have searched for available GROMACS installation recipes from the [LUMI Software Library](https://klust.github.io/LUMI-EasyBuild-docs/) and besides some (at least at a later point useful) detailed information, we see several available *EasyConfig* files (=the installation recipes) for GROMACS. The names of the EasyConfig files end with `.eb` and have a name that consists of important information related to the recipe.
 
 To have an insight on which of the build recipes to use, one needs to first understand the naming scheme for the EasyBuild recipes on LUMI.
 
@@ -116,7 +117,7 @@ package. In this case, it indicates that it is a build of the 2021.4 version
 purely for CPU and also includes PLUMED as we have also builds without PLUMED
 (which is not compatible with every GROMACS version).
 
-Pay especially attention to the _**toolchain**_ of the recipe. The version of the toolchain should match the version of the installed LUMI software stack or the installation will fail. To install the GROMACS recipe in this example, we should use the LUMI software stack version 22.06 `LUMI/22.06`.
+One should especially pay attention to the _**toolchain**_ of the recipe. **The version of the toolchain should match the version of the installed LUMI software stack or the installation will fail.** To install the GROMACS recipe in this example, we should use the LUMI software stack version 22.06 `LUMI/22.06`.
 
 
 ### Software installation procedure
@@ -126,7 +127,7 @@ Pay especially attention to the _**toolchain**_ of the recipe. The version of th
 We support installing software with EasyBuild only in the LUMI software stacks,
 not in CrayEnv. 
 
-Let's assume that we want to install software in the `LUMI/22.06` stack. To load this version of LUMI software stack (and to possibly replace a version that we might have loaded earlier), we then execute
+Now let's assume that we want to install software in the `LUMI/22.06` stack. To load this version of LUMI software stack (and to possibly replace a version that we might have loaded earlier), we then execute
 
 ```bash
 $ module load LUMI/22.06
@@ -192,7 +193,7 @@ To search for a specific software and all the build recipes available for it:
 $ eb --search <some-name>
 ```
 
-where `<some-name>` is a name of a software, e.g. Gromacs. The page about [EasyBuild installable software on LUMI and the build recipes](https://klust.github.io/LUMI-EasyBuild-docs/) should be used as a primary source of information, though.
+where `<some-name>` is a name of a software, e.g. Gromacs. The [LUMI Software Library](https://klust.github.io/LUMI-EasyBuild-docs/) should be used as a primary source of information, though.
 
 
 !!! Warning
@@ -221,7 +222,7 @@ want full control and install dependency by dependency before installing the
 package (which may be very useful if building right away fails).
 
 
-Now, if evetything has gone right, when you type `module avail` you should see on the software list 
+Now, if everything has gone right, when you type `module avail` you should see on the software list 
 
 ```text
 GROMACS/2021.4-cpeGNU-22.06-PLUMED-2.7.4-CPU
@@ -229,7 +230,7 @@ GROMACS/2021.4-cpeGNU-22.06-PLUMED-2.7.4-CPU
 
 This software module will, in our example case, appear under the heading *EasyBuild managed user software for software stack LUMI/22.06 on LUMI-C*.
 
-Finally, to load the now available module, type `module load <module name>`, e.g.:
+Finally, to load the available module, type `module load <module name>`, e.g.:
 
 ```text
 module load GROMACS/2021.4-cpeGNU-22.06-PLUMED-2.7.4-CPU
@@ -240,6 +241,22 @@ and the module name and version of the module. This is only the case though if
 the EasyBuild recipe follows the EasyBuild guidelines for naming. If the
 guidelines are not followed and if EasyBuild needs to install this module as a
 dependency of another package, EasyBuild will fail to locate the build recipe.
+
+
+### Problem identification
+
+If the software you installed is not visible when you do `module avail`, there's several things that might have gone wrong. Here are some things to start with the identification of the problem:
+
+**1)** Do you have [the same settings](#1-version-of-software-stack-and-partition) of LUMI software stack and partition than when installing the software? If not, you can't see the software in available ones. Change to the same version of LUMI software stack and partition that you had when installing the software to see the exisiting software installation as an available module. If you wish to use the software with different software stacks settings, you should do the installation again with these settings.
+
+**2)** Did you install a version of a software recipe that has [a compatible toolchain](#the-installation-recpies) with the version of LUMI software stack that you had during the installation? If the toolchain was not compatible, it's likely that the installation has failed. 
+
+**3)** Did you change the value of `EBU_USER_PREFIX` in a clean environment (i.e. you hadn't loaded any modules after login)? If not, or you don't remember if you had modules loaded, you might need to set the EBU_USER_PREFIX variable again (following [these instructions](#preliminary-step-set-up-the-location-for-your-easybuild-installations)) in a clean environment, and redo the software installation. 
+
+**4)** Some loaded modules can mess up the EasyBuild installation. When using EasyBuild, you should usually get a warning about these modules. 
+
+**5)** If you are changing the version of programming environment, make sure that you know what you are doing: With EasyBuild one should only use the `cpe*` versions of programming environments, not the `PrgEnv-*`. See also the following chapter [Toolchaings for Cray](#toolchains-on-cray). 
+
 
 
 ## Advanced guide to EasyBuild on LUMI
@@ -266,7 +283,7 @@ All four toolchains use `cray-mpich` over the Open Fabric Interface library
 releases taken from the Cray PE release that corresponds to the version number
 of the `cpeGNU`, `cpeCray`, `cpeAOCC`, or `cpeAMD` module.
 
-??? note "cpeGNU/Cray/AOCC/AMD and PrgEnv-gnu/cray/aocc/amd"
+!!! note "`cpe*` and `PrgEnv-*`"
     Currently the `cpeGNU`, `cpeCray`, `cpeAOCC`, and `cpeAMD` modules don't
     load the corresponding `PrgEnv-*` modules nor the `cpe/<version>` modules.
     This is because in the current setup of LUMI both modules have their

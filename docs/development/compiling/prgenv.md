@@ -28,11 +28,16 @@ and [compiler wrappers][2] that you can use to compile your C, C++ or Fortran
 code. Finally, some basic information on how to compile an [MPI][3] or
 [OpenMP][4] program is given.
 
+!!! Warning
+    If you are using the [LUMI software stacks](../../runjobs/lumi_env/softwarestacks.md), it's highly recommended to only use the [EasyBuild toolchains of the programming environments](../../software/installing/easybuild.md#toolchains-on-cray), i.e. `cpe*` instead of `PrgEnv-*`. 
+
+
 ## Compiler Suites
 
 On LUMI, the different compiler suites are accessible using module collections.
 These collections load the appropriates modules to use one of the supported
 programming environments for LUMI.
+
 
 ### Switching compiler suites
 
