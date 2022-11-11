@@ -6,6 +6,13 @@
 [lumi-g]: ../../hardware/compute/lumig.md
 [eap]: ../../hardware/compute/eap.md
 
+
+## Introduction
+
+EasyBuild is the primary, but not the only way (see also [Spack](../installing/spack.md), [Container wrapper](../installing/container-wrapper.md) and [Singularity/Apptainer containers](../containers/singularity.md)) to bring/install software on LUMI.
+
+See the currenlty available EasyBuild installation recipes in [LUMI Software Library](https://klust.github.io/LUMI-EasyBuild-docs/).
+
 Most software in the central LUMI [software stacks][softwarestacks] is
 installed through [EasyBuild](https://easybuild.io/). The central software
 stack is kept as compact as possible to ease maintenance and to avoid user

@@ -26,17 +26,18 @@ optimize your software for use on LUMI, consult the [developing section][develop
 
 
 
-## Bringing your scientific software to LUMI:
+## Bringing your scientific software to LUMI
 
-### 1. Install the software in your home or project directory. 
- - #### [EasyBuild][easybuild] (recommended)
-The recommended way is to use the [EasyBuild][easybuild] package manager as it is used to manage the [central software stack][software-stacks] on LUMI, which makes it easy to install additional software that extends it. 
+### 1. Install the software in your home or project directory
+ - #### [EasyBuild][easybuild]
+The [EasyBuild][easybuild] package manager is used to manage the [central software stack][software-stacks] on LUMI, which makes it easy to install additional software that extends it. For this reason we also recommend using EasyBuild for the software installations that it is suitable. 
 To identify the software for which we already provide EasyBuild recipes, visit the [LUMI Software Library](https://klust.github.io/LUMI-EasyBuild-docs/)
 
  - #### [Spack][spack]
- Consult the [Spack][spack] pages for available Spack installable software recipes on LUMI.
+ An alternative way to install software on LUMI is with [Spack][spack]. Consult the Spack pages for available Spack installable software recipes on LUMI.
 
  - #### [Container wrapper][contwrapper]
+ An alternative way to install software on LUMI that should be used especially with Conda/Pip installations, because otherwise they can cause a heavy load to the Lustre filesystem with large number of small files.
 
 
 ### 2. Singulairy/Apptainer container
